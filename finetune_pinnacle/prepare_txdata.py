@@ -111,7 +111,7 @@ def main():
     parser.add_argument('--evidence_dir', type=str) # Download OpenTargets ChEMBL evidence
     parser.add_argument('--all_drug_targets_path', type=str, default="../data/therapeutic_target_task/all_approved.csv")
     parser.add_argument('--curated_disease_dir', type=str)
-    parser.add_argument('--chembl2db_path', type=str)  # Download mapping from ChEMBL id to DrugBank id from https://ftp.ebi.ac.uk/pub/databases/chembl/UniChem/data/wholeSourceMapping/src_id1/src1src2.txt (version: 13-Apr-2022)
+    parser.add_argument('--chembl2db_path', type=str)  # Download mapping from ChEMBL id to DrugBank id from https://ftp.ebi.ac.uk/pub/databases/chembl/UniChem/data/wholeSourceMapping/src_id1/src1src2.txt.gz
     parser.add_argument('--disease_drug_evidence_prefix', type=str, default="../data/therapeutic_target_task/disease_drug_evidence_")
     parser.add_argument('--positive_proteins_prefix', type=str, default="../data/therapeutic_target_task/positive_proteins_")
     parser.add_argument('--negative_proteins_prefix', type=str, default="../data/therapeutic_target_task/negative_proteins_")
