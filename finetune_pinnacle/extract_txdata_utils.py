@@ -78,13 +78,29 @@ def get_all_drug_evidence(evidence_files: List, evidence_dir: str, all_disease: 
     """
     Get all target-disease associations with clinically relevant evidence, i.e. mediated by approved drugs / clinical candidate >= II (must be 'Completed' if II)
     """
+    
+
     all_evidence = []
     for file in evidence_files:
-        evidence_file = evidence_dir + file
-        with open(evidence_file) as f:
-            raw_evidence = f.readlines()
-            evidence_list = [json.loads(evidence) for evidence in raw_evidence]
+        # Safely join paths
+        evidence_file = os.path.join(evidence_dir, file)
+        
+        # Read the Parquet file into a Pandas DataFrame
+        df = pd.read_parquet(evidence_file)
+        
+        # Helper function to safely check for missing values
+        def is_not_missing(val):
+            # If the value is a list, dict, or array, it's not a missing scalar
+            if isinstance(val, (list, dict, tuple, np.ndarray)):
+                return True
+            # Otherwise, it's safe to use pd.notna() for scalars
+            return pd.notna(val)
 
+        # Convert DataFrame to a list of dictionaries, dropping missing values safely
+        evidence_list = [{k: v for k, v in record.items() if is_not_missing(v)} 
+                         for record in df.to_dict(orient='records')]
+
+        # Your inner loop logic remains exactly the same
         for evidence in evidence_list:
             if ('diseaseFromSourceMappedId' in evidence.keys()) and ('clinicalPhase' in evidence.keys()) and (evidence['diseaseFromSourceMappedId'] in all_disease) and ((evidence['clinicalPhase']>=3) or (evidence['clinicalPhase']==2 and 'clinicalStatus' in evidence.keys() and evidence['clinicalStatus']=='Completed')):
                 if 'clinicalStatus' in evidence.keys():
@@ -108,8 +124,7 @@ def get_all_drug_evidence(evidence_files: List, evidence_dir: str, all_disease: 
                     try:
                         all_evidence.append([evidence['diseaseFromSourceMappedId'], evidence['diseaseId'], evidence['targetId'], evidence['targetFromSourceId'], evidence['clinicalPhase'], np.nan, chembl2db[evidence['drugId']]])
                     except: 
-                        all_evidence.append([evidence['diseaseFromSourceMappedId'], evidence['diseaseId'], evidence['targetId'], evidence['targetFromSourceId'], evidence['clinicalPhase'], np.nan, evidence['drugId']])
-            
+                        all_evidence.append([evidence['diseaseFromSourceMappedId'], evidence['diseaseId'], evidence['targetId'], evidence['targetFromSourceId'], evidence['clinicalPhase'], np.nan, evidence['drugId']])        
     drug_evidence_data = pd.DataFrame(all_evidence, columns=['diseaseFromSourceMappedId', 'diseaseId', 'targetId', 'targetFromSourceId', 'clinicalPhase', 'clinicalStatus', 'drugId']).sort_values(by='targetId')  # actually, it's drug-mediated target-disease association evidence data
     assert drug_evidence_data.diseaseFromSourceMappedId.isin(all_disease).all()
     assert drug_evidence_data.clinicalPhase.isin([2,3,4]).all()
