@@ -1,0 +1,23 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python Debugger: Current File",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "JustMyCode": false,
+            "args": [
+                "--disease", "EFO_0004997",
+                "--celltype_ppi", "/storage/nas/da24s015/PINNACLE/data/networks/ppi_edgelists/",
+                "--all_drug_targets_path", "/storage/nas/da24s015/PINNACLE/data/therapeutic_target_task/all_approved_oct2022.csv",
+                "--chembl2db_path", "/storage/nas/da24s015/PINNACLE/data/src1src2.txt",
+                "--evidence_dir", "/storage/nas/da24s015/PINNACLE/data/evidence_chembl"
+            ]
+        }
+    ]
+}

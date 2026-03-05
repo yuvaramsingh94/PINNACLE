@@ -1,8 +1,9 @@
 # Main finetuning script
-
+import os
+os.environ['CUDA_VISIBLE_DEVICES'] = '7'
 import pandas as pd
 import numpy as np
-import os, wandb, random
+import wandb, random
 
 from setup import create_parser, get_hparams, setup_paths
 from read_data import load_data
@@ -118,8 +119,8 @@ if __name__ == '__main__':
 
     hparams = get_hparams(args)
     print(hparams)
-
-    wandb.init(config = hparams, project = "finetune", entity = "pinnacle")
+    wandb.login()
+    wandb.init(config = hparams, project = "pinnacle_finetune")#, entity = "pinnacle")
     hparams = wandb.config
 
     main(args, hparams, wandb)

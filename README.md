@@ -138,3 +138,47 @@ To see and/or modify the default hyperparameters, please see the `get_hparams()`
 ## Questions
 
 Please leave a Github issue or contact Michelle Li at michelleli@g.harvard.edu.
+
+## Claude code for generating the labels
+
+Download the required items
+Go to: https://platform.opentargets.org/downloads
+Download the "Evidence" dataset (parquet files)
+It contains subdirectories like sourceId=chembl/, sourceId=eva/, etc.
+
+Go to: https://www.ebi.ac.uk/efo/
+Or from OpenTargets downloads: https://platform.opentargets.org/downloads
+Download the "Diseases" dataset which includes EFO ontology mappings
+
+Download from UniChem: https://www.ebi.ac.uk/unichem/
+Or create mapping using ChEMBL and DrugBank databases
+Expected format: TSV file with ChEMBL ID to DrugBank ID mappings
+
+Auto download
+```
+# Create directory structure
+mkdir -p data/opentargets
+cd data/opentargets
+
+wget --recursive --no-parent --no-host-directories --cut-dirs 6 ftp://ftp.ebi.ac.uk/pub/databases/opentargets/platform/25.12/output/evidence_chembl .
+
+# 2. Download OpenTargets Diseases (EFO)
+wget --recursive --no-parent --no-host-directories --cut-dirs 6 ftp://ftp.ebi.ac.uk/pub/databases/opentargets/platform/25.12/output/disease .
+
+# 3. Download UniChem mapping (ChEMBL to DrugBank)
+## Not working
+```
+
+
+
+
+
+```
+cd finetune_pinnacle
+python prepare_txdata.py \
+    --disease EFO_0000685 \  # Your OpenTargets disease ID
+    --celltype_ppi ../data/networks/ppi_edgelists/ \
+    --evidence_dir <path_to_evidence> \
+    --curated_disease_dir <path> \
+    --chembl2db_path <path_to_mapping>
+```

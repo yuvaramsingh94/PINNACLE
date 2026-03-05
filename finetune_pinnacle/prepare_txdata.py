@@ -51,7 +51,7 @@ def get_labels_from_evidence(celltype_protein_dict: Dict[str, List[str]], diseas
     if len(positive_proteins) == 0:
 
         # Get all disease descendants (we include indirect evidence)
-        all_disease = get_disease_descendants(disease, source='ot', curated_disease_dir=curated_disease_dir)
+        all_disease = get_disease_descendants(disease, source='efo', curated_disease_dir=curated_disease_dir)# `ot`
         if wandb is not None:
             wandb.log({f'number of disease descendants':len(all_disease)})
         
