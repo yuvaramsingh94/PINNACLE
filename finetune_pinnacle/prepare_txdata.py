@@ -19,15 +19,15 @@ MAX_RETRY = 10  # To mitigate the effect of random state, we will redo data spli
 TEST_CELLTYPE_POS_NUM_MIN = 5 # For each cell type, the number of positive samples in test set must be greater than 5, or else the disease won't be evlauated
 
 
-def get_labels_from_evidence(celltype_protein_dict: Dict[str, List[str]], disease: str, evidence_dir: str, all_drug_targets_path: str, curated_disease_dir: str, chembl2db_path: str, 
-                             positive_protein_prefix: str, negative_protein_prefix: str, raw_data_prefix: str, 
+def get_labels_from_evidence(celltype_protein_dict: Dict[str, List[str]], disease: str, evidence_dir: str, all_drug_targets_path: str, curated_disease_dir: str, chembl2db_path: str,
+                             positive_protein_prefix: str, negative_protein_prefix: str, raw_data_prefix: str,
                              overwrite: bool, disease_drug_evidence_prefix = "", wandb = None):
     """
     Get positive and negative targets associated with each disease and descendants.
     """
-    
+
     # Read in CHEMBL data
-    chembl_db_df = pd.read_table(chembl2db_path) 
+    chembl_db_df = pd.read_table(chembl2db_path)
     chembl_db_df.columns = ['chembl', 'db']
     chembl2db = chembl_db_df.set_index('chembl').to_dict()['db']
 
@@ -40,7 +40,7 @@ def get_labels_from_evidence(celltype_protein_dict: Dict[str, List[str]], diseas
     druggable_targets.remove(np.nan)  # all approved drugs' targets
 
     evidence_files = os.listdir(evidence_dir)
-    
+
     positive_proteins = {}
     negative_proteins = {}
     all_relevant_proteins = {}
@@ -51,10 +51,10 @@ def get_labels_from_evidence(celltype_protein_dict: Dict[str, List[str]], diseas
     if len(positive_proteins) == 0:
 
         # Get all disease descendants (we include indirect evidence)
-        all_disease = get_disease_descendants(disease, source='ot', curated_disease_dir=curated_disease_dir)
+        all_disease = get_disease_descendants(disease, source='efo', curated_disease_dir=curated_disease_dir)
         if wandb is not None:
             wandb.log({f'number of disease descendants':len(all_disease)})
-        
+
         # Look for clinically relevant evidence on targets related to each of the diseases.
         disease_drug_evidence_data = get_all_drug_evidence(evidence_files, evidence_dir, all_disease, chembl2db)
 
@@ -63,7 +63,7 @@ def get_labels_from_evidence(celltype_protein_dict: Dict[str, List[str]], diseas
 
         # Convert clinically relevant targets to gene names
         disease_drug_targets = evidence2genename(disease_drug_evidence_data, ensg2otgenename)
-        
+
         # Saving disease/drug-target evidence
         if disease_drug_evidence_prefix != "":
             disease_drug_evidence_data["targetId_genename"] = disease_drug_evidence_data["targetId"].map(ensg2otgenename)
@@ -86,7 +86,7 @@ def get_labels_from_evidence(celltype_protein_dict: Dict[str, List[str]], diseas
             json.dump(negative_proteins, f)
         with open(raw_data_prefix + disease + '.json', 'w') as f:
             json.dump(all_relevant_proteins, f)
-        
+
         # Plot protein counts
         tmp_positive_proteins = {disease: positive_proteins}
         positive_protein_counts_celltype = pd.DataFrame(tmp_positive_proteins).rename(index={ind:ind[:-2] for ind in tmp_positive_proteins.keys()}).reset_index().melt(id_vars = ['index']).groupby(by=['index', 'variable']).aggregate(list).applymap(lambda x: len(np.unique(sum(x, start = [])))).reset_index()
@@ -112,16 +112,16 @@ def main():
     parser.add_argument('--all_drug_targets_path', type=str, default="../data/therapeutic_target_task/all_approved.csv")
     parser.add_argument('--curated_disease_dir', type=str)
     parser.add_argument('--chembl2db_path', type=str)  # Download mapping from ChEMBL id to DrugBank id from https://ftp.ebi.ac.uk/pub/databases/chembl/UniChem/data/wholeSourceMapping/src_id1/src1src2.txt.gz
-    parser.add_argument('--disease_drug_evidence_prefix', type=str, default="../data/therapeutic_target_task/disease_drug_evidence_")
-    parser.add_argument('--positive_proteins_prefix', type=str, default="../data/therapeutic_target_task/positive_proteins_")
-    parser.add_argument('--negative_proteins_prefix', type=str, default="../data/therapeutic_target_task/negative_proteins_")
-    parser.add_argument('--raw_data_prefix', type=str, default="../data/therapeutic_target_task/raw_targets_")
+    parser.add_argument('--disease_drug_evidence_prefix', type=str, default="data/therapeutic_target_task/disease_drug_evidence_")
+    parser.add_argument('--positive_proteins_prefix', type=str, default="data/therapeutic_target_task/positive_proteins_")
+    parser.add_argument('--negative_proteins_prefix', type=str, default="data/therapeutic_target_task/negative_proteins_")
+    parser.add_argument('--raw_data_prefix', type=str, default="data/therapeutic_target_task/raw_targets_")
     args = parser.parse_args()
 
     celltype_protein_dict = load_PPI_data(args.celltype_ppi)
 
     positive_proteins, negative_proteins, all_relevant_proteins = get_labels_from_evidence(celltype_protein_dict, args.disease, args.evidence_dir, args.all_drug_targets_path, args.curated_disease_dir, args.chembl2db_path, args.positive_proteins_prefix, args.negative_proteins_prefix, args.raw_data_prefix, overwrite = True, disease_drug_evidence_prefix = args.disease_drug_evidence_prefix)
-    
+
     for c, v in positive_proteins.items():
         assert len(v) == len(set(v).intersection(set(all_relevant_proteins)))
 
