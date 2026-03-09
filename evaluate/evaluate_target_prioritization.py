@@ -1,3 +1,4 @@
+import os
 import argparse
 import glob
 import json
@@ -13,7 +14,11 @@ import utils
 from metrics import calculate_metrics, calculate_celltype_percentiles
 
 import sys
-sys.path.insert(0, '..') # add data_config to path
+#sys.path.insert(0, os.path.join("..")) # add data_config to path
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))) # add data_config to path
+
+print("PATHS")
+print(sys.path)
 from data_config import DATA_DIR, TS_TISSUE_DATA_DIR, METAGRAPH_DIR
 
 
@@ -22,9 +27,12 @@ def read_model_data(model_outputs_dir, disease, test_only):
     # Read model outputs
     # Table columns: y,preds,name,type
     model_outputs_dict = dict()
-    for f in glob.glob(model_outputs_dir + ("TS_%s" % disease) + "_torch_mlp_all_preds_*"):
-        celltype = f.split("all_preds_")[1].split(".csv")[0]
-        celltype_df = pd.read_csv(f)
+    print("The new path")
+    print(model_outputs_dir)
+    csv_filenames_in_all = [i for i in os.listdir(model_outputs_dir) if "_all_" in i]
+    for f in csv_filenames_in_all:
+        celltype = f.replace("pinnacle_all_preds_","").replace(".csv","")
+        celltype_df = pd.read_csv(os.path.join(model_outputs_dir, f))
         celltype_df["celltype"] = celltype
         celltype_df = utils.filter_model_data(celltype_df, test_only)
         model_outputs_dict[celltype] = celltype_df
@@ -147,7 +155,7 @@ def main():
     metagraph = nx.read_edgelist(METAGRAPH_DIR, delimiter = "\t")
     
     # Read disease-drug evidence
-    evidence = pd.read_csv(args.evidence + "tx_target/targets/disease_drug_evidence_%s.csv" % args.disease, sep = "\t")
+    evidence = pd.read_csv(os.path.join(args.evidence, args.disease, "disease_drug_evidence_%s.csv" % args.disease), sep = "\t")
     print(evidence)
 
     # Calculate performance
@@ -158,10 +166,10 @@ def main():
     
     for s in seeds:
         
-        model_outputs_dir = args.model_outputs_dir + ("TS_seed=%s/" % str(s))
+        #model_outputs_dir = args.model_outputs_dir
         save_prefix = "seed=%s" % str(s)
 
-        model_outputs_df, test_proteins = read_model_data(model_outputs_dir, args.disease, args.test_only)
+        model_outputs_df, test_proteins = read_model_data(args.model_outputs_dir, args.disease, args.test_only)
         utils.check_available_celltypes(metagraph, model_outputs_df)
         celltype2compartment, compartments, _, _ = utils.read_tissue_metadata(TS_TISSUE_DATA_DIR, "cell_ontology_class")
 
