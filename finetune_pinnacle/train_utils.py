@@ -77,9 +77,10 @@ def training_and_validation(X_train, X_val, y_train, y_val, cts_train, cts_val, 
     loss_func = nn.BCEWithLogitsLoss(pos_weight=pos_weight)
     optim = torch.optim.Adam(model.parameters(), lr=hparams[lr], weight_decay=hparams[wd])
     
-    wandb.watch(model, log_freq=20)
+    #wandb.watch(model, log_freq=20)
     for i in range(num_epoch):
         print(f"Epoch {i+1}\n---------------")
+        wandb.log({"Epoch":i+1})
         _, _, train_y, train_preds, train_cts, train_groups = train_epoch(model, train_loader, optim, loss_func, batch_size, wandb, device)
         if not no_val:
             _, val_auprc, val_y, val_preds, val_cts, val_groups = validate_epoch(model, val_loader, loss_func, wandb, device)
@@ -95,6 +96,7 @@ def training_and_validation(X_train, X_val, y_train, y_val, cts_train, cts_val, 
                 best_train_preds = train_preds.copy()
                 best_val_cts = val_cts.copy().astype(int)
                 best_train_cts = train_cts.copy().astype(int)
+
 
     if no_val:
         best_train_groups = train_groups.astype(int)
@@ -115,7 +117,7 @@ def train_epoch(model, train_loader, optim, loss_func, batch_size, wandb, device
     all_cts = torch.tensor([])
     all_groups = torch.tensor([])
     for i, (X, y, cts, groups) in enumerate(train_loader):
-        print("Batch", i)
+        #print("Batch", i)
 
         all_y = torch.cat([all_y, y])
         all_cts = torch.cat([all_cts, cts])
@@ -133,12 +135,12 @@ def train_epoch(model, train_loader, optim, loss_func, batch_size, wandb, device
         total_sample += batch_size
         total_loss += float(loss) * batch_size
 
-        if i % 20 == 0:
-            loss, current = loss.item(), i * len(X)
-            print(f"train loss: {loss:.4f} [{current}/{train_size}]")
-            wandb.log({f"train loss":loss})
+        # if i % 20 == 0:
+        #     loss, current = loss.item(), i * len(X)
+        #     print(f"train loss: {loss:.4f} [{current}/{train_size}]")
+        #     wandb.log({f"train loss":loss})
 
-    print("Finished with batches...")
+    #print("Finished with batches...")
 
     all_y = all_y.detach().numpy().astype(int)
     all_preds = torch.sigmoid(all_preds).detach().numpy()
@@ -148,7 +150,8 @@ def train_epoch(model, train_loader, optim, loss_func, batch_size, wandb, device
     train_auroc, train_auprc, train_recall_5, train_precision_5, train_ap_5, train_recall_10, train_precision_10, train_ap_10, _, _, _, _ = get_metrics(all_y, all_preds, all_groups, "training")
 
     total_loss = total_loss / total_sample
-    wandb.log({f"train AUPRC": train_auprc,
+    wandb.log({f"train loss": total_loss,
+               f"train AUPRC": train_auprc,
                f"train AUROC": train_auroc,
                f"train recall@5": train_recall_5,
                f"train recall@10": train_recall_10,
@@ -157,7 +160,7 @@ def train_epoch(model, train_loader, optim, loss_func, batch_size, wandb, device
                f"train AP@5": train_ap_5,
                f"train AP@10": train_ap_10})
 
-    print("Finished with one full epoch...")
+    #print("Finished with one full epoch...")
 
     return total_loss, train_auprc, all_y, all_preds, all_cts, all_groups
 
@@ -183,7 +186,7 @@ def validate_epoch(model, val_loader, loss_func, wandb, device):
         all_preds = torch.cat([all_preds, preds.cpu()])
         val_loss += loss_func(preds, y).item() * X.shape[0]
 
-    print("Finished all batches in validation...")
+    #print("Finished all batches in validation...")
     
     val_loss /= val_size
 
@@ -201,5 +204,5 @@ def validate_epoch(model, val_loader, loss_func, wandb, device):
                f"val AP@5":val_ap_5,
                f"val AP@10":val_ap_10})
 
-    print("Finished with calculating metrics...")
+    #print("Finished with calculating metrics...")
     return val_loss, val_auprc, ys, preds, cts, groups

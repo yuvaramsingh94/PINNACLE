@@ -36,8 +36,9 @@ def create_parser():
     parser.add_argument("--embed", type=str, default="pinnacle")
 
     # Output directories
-    parser.add_argument("--metrics_output_dir", type=str, default="./tmp_evaluation_results/")
-    parser.add_argument("--models_output_dir", type=str, default="./tmp_model_outputs/")
+    parser.add_argument("--result_dir", type=str, default="results/")
+    parser.add_argument("--metrics_output_dir", type=str, default="evaluation_results/")
+    parser.add_argument("--models_output_dir", type=str, default="model_outputs/")
     parser.add_argument("--random_state", type=int, default=1)
     parser.add_argument("--random", action="store_true", help="random runs without fixed seeds")
     parser.add_argument("--overwrite", action="store_true", help="whether to overwrite the label data or not")

@@ -15,6 +15,23 @@ MAX_RETRY = 10  # To mitigate the effect of random state, we will redo data spli
 TEST_CELLTYPE_POS_NUM_MIN = 5 # For each cell type, the number of positive samples in test set must be greater than 5, or else the disease won't be evlauated
 
 
+def path_update_fn(args):
+    """Modify the prefix with a custom path that include disease name.
+
+    Args:
+        args (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
+    
+    args.data_split_path = os.path.join(args.result_dir,args.disease, args.data_split_path+"_"+args.disease)
+    args.positive_proteins_prefix = os.path.join(args.result_dir,args.disease, args.positive_proteins_prefix+"_"+args.disease)
+    args.negative_proteins_prefix = os.path.join(args.result_dir,args.disease, args.negative_proteins_prefix+"_"+args.disease)
+    args.raw_data_prefix = os.path.join(args.result_dir,args.disease, args.raw_data_prefix+"_"+args.disease)
+    return args
+
+
 def read_args():
     parser = argparse.ArgumentParser()
 
@@ -26,16 +43,18 @@ def read_args():
     # parser.add_argument("--celltype_ppi", type=str, default="../data/networks/ppi_edgelists/", help="Filename (prefix) of cell type PPI.")
     
     # Fine-tuning data
-    parser.add_argument('--positive_proteins_prefix', type=str, default="../data/therapeutic_target_task/positive_proteins")
-    parser.add_argument('--negative_proteins_prefix', type=str, default="../data/therapeutic_target_task/negative_proteins")
-    parser.add_argument('--raw_data_prefix', type=str, default="../data/therapeutic_target_task/raw_targets")
+    parser.add_argument('--disease', type=str)
+    parser.add_argument('--result_dir', type=str, default="data/therapeutic_target_task")
+    parser.add_argument('--positive_proteins_prefix', type=str, default="positive_proteins")
+    parser.add_argument('--negative_proteins_prefix', type=str, default="negative_proteins")
+    parser.add_argument('--raw_data_prefix', type=str, default="raw_targets")
 
     # Parameters for data split size
     parser.add_argument("--train_size", type=float, default=0.6)
     parser.add_argument("--val_size", type=float, default=0.2)
 
     # Output
-    parser.add_argument('--data_split_path', type=str, default="../data/therapeutic_target_task/data_split")
+    parser.add_argument('--data_split_path', type=str, default="data_split")
 
     parser.add_argument("--random_state", type=int, default=1)
     args = parser.parse_args()
@@ -221,6 +240,7 @@ def main():
     """
 
     args = read_args()
+    args = path_update_fn(args)
 
     # PINNACLE pretrained representations
     embed_path = args.embeddings_dir + args.embed + "_protein_embed.pth"

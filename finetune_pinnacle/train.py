@@ -1,6 +1,6 @@
 # Main finetuning script
 import os
-os.environ['CUDA_VISIBLE_DEVICES'] = '7'
+print("### check",os.environ['CUDA_VISIBLE_DEVICES'])
 import pandas as pd
 import numpy as np
 import wandb, random
@@ -35,6 +35,7 @@ def run_finetune(embed, celltype_dict, celltype_protein_dict, positive_proteins,
     torch.save({'epoch': best_epoch, 'model_state_dict': clf.state_dict()}, save_path)
 
     return positive_proportion_train, positive_proportion_test, auroc_scores, ap_scores
+
 
 
 def finetune_train_stage(X_train, y_train, random_state, groups_train, cts_train, hparams, train_size, val_size, num_epoch, batch_size, weigh_sample, weigh_loss, models_output_dir, embed_name):
@@ -106,10 +107,20 @@ def main(args, hparams, wandb):
     output_figs_path = os.path.join(metrics_output_dir, f"{args.embed}_{args.task_name}_")
     save_results(output_results_path, ap_scores, auroc_scores)
     
+def create_path(args):
+    args.result_dir = os.path.join(args.result_dir,args.task_name)
+    args.metrics_output_dir = os.path.join(args.result_dir,args.metrics_output_dir)
+    args.models_output_dir = os.path.join(args.result_dir,args.models_output_dir)
+
+    os.makedirs(args.metrics_output_dir, exist_ok=True)
+    os.makedirs(args.models_output_dir, exist_ok=True)
+    return args
+
 
 if __name__ == '__main__':
     args = create_parser()
-
+    args = create_path(args)
+    
     if not args.random:
         np.random.seed(args.random_state)
         random.seed(args.random_state)

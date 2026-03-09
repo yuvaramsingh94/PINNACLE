@@ -101,6 +101,13 @@ def get_labels_from_evidence(celltype_protein_dict: Dict[str, List[str]], diseas
 
     return positive_proteins, negative_proteins, all_relevant_proteins
 
+def path_update_fn(args):
+    os.makedirs(os.path.join(args.result_dir,args.disease), exist_ok=True)
+    args.disease_drug_evidence_prefix = os.path.join(args.result_dir,args.disease, args.disease_drug_evidence_prefix)
+    args.positive_proteins_prefix = os.path.join(args.result_dir,args.disease, args.positive_proteins_prefix)
+    args.negative_proteins_prefix = os.path.join(args.result_dir,args.disease, args.negative_proteins_prefix)
+    args.raw_data_prefix = os.path.join(args.result_dir,args.disease, args.raw_data_prefix)
+    return args
 
 def main():
     import argparse
@@ -112,11 +119,13 @@ def main():
     parser.add_argument('--all_drug_targets_path', type=str, default="../data/therapeutic_target_task/all_approved.csv")
     parser.add_argument('--curated_disease_dir', type=str)
     parser.add_argument('--chembl2db_path', type=str)  # Download mapping from ChEMBL id to DrugBank id from https://ftp.ebi.ac.uk/pub/databases/chembl/UniChem/data/wholeSourceMapping/src_id1/src1src2.txt.gz
-    parser.add_argument('--disease_drug_evidence_prefix', type=str, default="data/therapeutic_target_task/disease_drug_evidence_")
-    parser.add_argument('--positive_proteins_prefix', type=str, default="data/therapeutic_target_task/positive_proteins_")
-    parser.add_argument('--negative_proteins_prefix', type=str, default="data/therapeutic_target_task/negative_proteins_")
-    parser.add_argument('--raw_data_prefix', type=str, default="data/therapeutic_target_task/raw_targets_")
+    parser.add_argument('--result_dir', type=str, default="data/therapeutic_target_task")
+    parser.add_argument('--disease_drug_evidence_prefix', type=str, default="disease_drug_evidence_")
+    parser.add_argument('--positive_proteins_prefix', type=str, default="positive_proteins_")
+    parser.add_argument('--negative_proteins_prefix', type=str, default="negative_proteins_")
+    parser.add_argument('--raw_data_prefix', type=str, default="raw_targets_")
     args = parser.parse_args()
+    args = path_update_fn(args)
 
     celltype_protein_dict = load_PPI_data(args.celltype_ppi)
 
