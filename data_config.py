@@ -1,7 +1,7 @@
 ############################################################
 # DATA DIRECTORY
 
-DATA_DIR = "../data/"                                       # Data directory
+DATA_DIR = "data/"                                       # Data directory
 RAW_DATA_DIR = DATA_DIR + "raw/"                            # Directory with all draw data
 OUTPUT_DIR = DATA_DIR + "networks/"                         # Directory with all networks
 

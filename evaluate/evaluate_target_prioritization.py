@@ -151,6 +151,8 @@ def main():
     else: seeds = [int(s) for s in args.seeds.split(",")]
     print(seeds)
 
+    ##! My custom seed using only 1
+    seeds = [1]
     # Read meta graph
     metagraph = nx.read_edgelist(METAGRAPH_DIR, delimiter = "\t")
     
@@ -171,7 +173,7 @@ def main():
 
         model_outputs_df, test_proteins = read_model_data(args.model_outputs_dir, args.disease, args.test_only)
         utils.check_available_celltypes(metagraph, model_outputs_df)
-        celltype2compartment, compartments, _, _ = utils.read_tissue_metadata(TS_TISSUE_DATA_DIR, "cell_ontology_class")
+        #celltype2compartment, compartments, _, _ = utils.read_tissue_metadata(TS_TISSUE_DATA_DIR, "cell_ontology_class")
 
         # Calculate AP and ROC
         ap, roc, recall_k, precision_k, accuracy_k, ap_k = calculate_metrics(args.k, "celltype", test_proteins, model_outputs_df)
@@ -187,9 +189,9 @@ def main():
             benchmarks_metric_seeds.append(benchmark_metric)
 
         # Aggregated targets across cell types
-        if args.test_only:
-            metric_by_compartment, celltype2compartment_df = utils.map_to_compartment(metric, celltype2compartment)
-            metric_by_compartment_seeds.append(metric_by_compartment)
+        # if args.test_only:
+        #     metric_by_compartment, celltype2compartment_df = utils.map_to_compartment(metric, celltype2compartment)
+        #     metric_by_compartment_seeds.append(metric_by_compartment)
 
         # Individual targets
         if args.drug_targets != "":

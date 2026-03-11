@@ -15,9 +15,11 @@ from data_prep import process_and_split_data
 import torch
 from sklearn.model_selection import StratifiedGroupKFold
 from sklearn.utils import shuffle
-#from sweep_setup import hyper_param
+
+# from sweep_setup import hyper_param
 
 os.environ["OPENBLAS_NUM_THREADS"] = "1"
+
 
 def create_path(args):
     args.result_dir = os.path.join(args.result_dir, args.task_name)
@@ -99,16 +101,18 @@ def main():
             "wd": config.wd,
             "hidden_dim_1": config.hidden_dim_1,
             "hidden_dim_2": config.hidden_dim_2,
-            "hidden_dim_3": getattr(config, "hidden_dim_3", args.hidden_dim_3),  # fallback if not in sweep
+            "hidden_dim_3": getattr(
+                config, "hidden_dim_3", args.hidden_dim_3
+            ),  # fallback if not in sweep
             "dropout": config.dropout,
             "actn": config.actn,
             "order": config.order,
             "norm": config.norm,
-            "task_name": args.task_name
+            "task_name": args.task_name,
         }
 
         print(hparams)
-        print("Batch size",args.batch_size)
+        print("Batch size", args.batch_size)
         (
             clf,
             best_train_y,
@@ -136,9 +140,10 @@ def main():
             np.array(groups_train)[val_indices],
             args.num_epoch,
             args.batch_size,
-            args.weigh_sample, 
+            args.weigh_sample,
             args.weigh_loss,
             hparams,
+            lr_scheduler=args.lr_scheduler,
         )
 
 
@@ -147,11 +152,16 @@ sweep_configuration = {
     "method": "random",
     "metric": {"goal": "maximize", "name": "val AUPRC"},
     "parameters": {
-        "norm": {"values": ["bn", "ln",]},
+        "norm": {
+            "values": [
+                "bn",
+                "ln",
+            ]
+        },
         "actn": {"values": ["relu"]},
         "hidden_dim_1": {"values": [8, 16, 32]},
         "hidden_dim_2": {"values": [8, 16, 32]},
-        "dropout": {"values": [0.2,  0.5, 0.8]},
+        "dropout": {"values": [0.2, 0.5, 0.8]},
         "lr": {"values": [0.01, 0.001, 0.0001]},
         "wd": {"values": [0.001, 0.0001, 0.00001, 0.000001]},
         "order": {"values": ["nd", "dn"]},
@@ -167,10 +177,6 @@ sweep_id = wandb.sweep(sweep=sweep_configuration, project="pinnacle_finetune")
 # sweep_id = 'mbt7t2yv'
 
 
-#sweep_id = "yuvaramsingh/pinnacle_finetune/mbt7t2yv"
+# sweep_id = "yuvaramsingh/pinnacle_finetune/iepr91xt"
 
-wandb.agent(
-    sweep_id,
-    function=main,
-    count=50
-)
+wandb.agent(sweep_id, function=main, count=100)

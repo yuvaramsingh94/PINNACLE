@@ -2,11 +2,11 @@
 export CUDA_VISIBLE_DEVICES="7"
 # (EFO_0000401)
 python finetune_pinnacle/hyper_param_tune.py \
-    --task_name EFO_0000685 \
+    --task_name MONDO_0005184 \
     --embeddings_dir data/pinnacle_embeds/ \
-    --positive_proteins_prefix data/therapeutic_target_task/EFO_0000685/positive_proteins_EFO_0000685 \
-    --negative_proteins_prefix data/therapeutic_target_task/EFO_0000685/negative_proteins_EFO_0000685 \
-    --data_split_path data/therapeutic_target_task/EFO_0000685/data_split_EFO_0000685 \
+    --positive_proteins_prefix data/therapeutic_target_task/MONDO_0005184/positive_proteins_MONDO_0005184 \
+    --negative_proteins_prefix data/therapeutic_target_task/MONDO_0005184/negative_proteins_MONDO_0005184 \
+    --data_split_path data/therapeutic_target_task/MONDO_0005184/data_split_MONDO_0005184 \
     --actn relu \
     --dropout 0.2 \
     --hidden_dim_1 32 \
@@ -17,4 +17,5 @@ python finetune_pinnacle/hyper_param_tune.py \
     --wd 0.001 \
     --random_state 1 \
     --num_epoch 50 \
-    --batch_size 32
+    --batch_size 32 \
+    --lr_scheduler  ## TODO Check this if it helps
