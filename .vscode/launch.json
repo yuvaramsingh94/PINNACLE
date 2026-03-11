@@ -12,11 +12,11 @@
             "console": "integratedTerminal",
             "JustMyCode": false,
             "args": [
-                "--disease", "EFO_0000685",
-                "--test_only", "True",
-                "--model_outputs_dir", "results/EFO_0000685_author_hpt/model_outputs/pinnacle_seed=1/",
-                "--evidence", "data/therapeutic_target_task/",
-                "--k", "5"
+                "--disease", "EFO_0003884",
+                "--embeddings_dir", "/storage/nas/da24s015/PINNACLE/data/pinnacle_embeds/",
+                "--embed", "pinnacle",
+                "--result_dir", "/storage/nas/da24s015/PINNACLE/data/therapeutic_target_task"
+
             ]
         }
     ]

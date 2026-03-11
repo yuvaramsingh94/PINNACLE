@@ -173,7 +173,9 @@ sweep_configuration = {
 }
 
 # 3: Start the sweep
-sweep_id = wandb.sweep(sweep=sweep_configuration, project="pinnacle_finetune")
+sweep_id = wandb.sweep(sweep=sweep_configuration, project="pinnacle_finetune", )
+
+wandb.config.update({"disease_id": args.disease_id}, allow_val_change=True)
 # sweep_id = 'mbt7t2yv'
 
 

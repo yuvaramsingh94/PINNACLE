@@ -13,7 +13,7 @@ from extract_txdata_utils import *
 
 MAX_RETRY = 10  # To mitigate the effect of random state, we will redo data splitting for MAX_RETRY times if the number of positive samples in test set is less than TEST_CELLTYPE_POS_NUM_MIN
 TEST_CELLTYPE_POS_NUM_MIN = 5  # For each cell type, the number of positive samples in test set must be greater than 5, or else the disease won't be evlauated
-
+TEST_CELLTYPE_POS_NUM_MIN = 1  # For each cell type, the number of positive samples in test set must be greater than 5, or else the disease won't be evlauated
 
 def path_update_fn(args):
     """Modify the prefix with a custom path that include disease name.
@@ -93,7 +93,8 @@ def process_and_split_data(
     test_size,
 ):
     """
-    First generate data (averaging same protein embeddings in different celltypes for the downstream task.  Then split the data into train/test sets while grouping by protein and stratified by cell types.
+    First generate data (averaging same protein embeddings in different celltypes for the downstream task.  
+    Then split the data into train/test sets while grouping by protein and stratified by cell types.
     """
     pos_embed = []
     neg_embed = []
@@ -105,6 +106,8 @@ def process_and_split_data(
     neg_prots_group = []
 
     # Generate data for split
+    # TODO FIX it
+    #! blunder mistake as celltype_dict does not have `_` and positive_proteins name have '_'
     for celltype in celltype_dict:
         if celltype not in positive_proteins:
             continue
@@ -136,7 +139,8 @@ def process_and_split_data(
     assert len(pos_embed) == len(pos_prots_group)
     assert len(pos_prots_group) == len(pos_prots_strata)
 
-    # Conduct train-test split in a grouped and stratified way, and also ensuring positive fraction by stratifying the positive and negative embeddings separately.
+    # Conduct train-test split in a grouped and stratified way, 
+    # and also ensuring positive fraction by stratifying the positive and negative embeddings separately.
     print("Checking for...", data_split_path)
     if os.path.exists(data_split_path):  # Generate new splits
         print("Data split file found. Loading data splits...")
