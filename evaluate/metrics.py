@@ -11,21 +11,22 @@ def precision_recall_at_k(y: np.ndarray, preds: np.ndarray, k: int = 10):
     """
     assert preds.shape[0] == y.shape[0]
     assert k > 0
-    if k > preds.shape[0]: return -1, -1, -1, -1
-    
+    if k > preds.shape[0]:
+        return -1, -1, -1, -1
+
     # Sort the scores and the labels by the scores
     sorted_indices = np.argsort(preds.flatten())[::-1]
     sorted_preds = preds[sorted_indices]
     sorted_y = y[sorted_indices]
-    
+
     # Get the scores of the k highest predictions
     topk_preds = sorted_preds[:k]
     topk_y = sorted_y[:k]
-    
+
     # Calculate the recall@k and precision@k
     recall_k = np.sum(topk_y) / np.sum(y)
     precision_k = np.sum(topk_y) / k
-    
+
     # Calculate the accuracy@k
     accuracy_k = accuracy_score(topk_y, topk_preds > 0.5)
 
@@ -52,15 +53,19 @@ def calculate_metrics(k, column, test_proteins, model_outputs_df):
     precision_k = dict()
     accuracy_k = dict()
     ap_k = dict()
-    for col_item in model_outputs_df[column].unique(): # Iterate through cell types or benchmark models
+    for col_item in model_outputs_df[
+        column
+    ].unique():  # Iterate through cell types or benchmark models
         df = model_outputs_df[model_outputs_df[column] == col_item]
-        
+
         # Calculate overall AUROC and AP for the cell type
         auroc_score = roc_auc_score(df["y"].tolist(), df["preds"].tolist())
         ap_score = average_precision_score(df["y"].tolist(), df["preds"].tolist())
-        
+
         # Calculate metrics at k
-        recall, precision, accuracy, ap_k_score = precision_recall_at_k(np.array(df["y"].tolist()), np.array(df["preds"].tolist()), k = k)
+        recall, precision, accuracy, ap_k_score = precision_recall_at_k(
+            np.array(df["y"].tolist()), np.array(df["preds"].tolist()), k=k
+        )
 
         # Save metrics
         ap[col_item] = ap_score

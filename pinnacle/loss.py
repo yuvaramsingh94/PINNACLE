@@ -2,11 +2,11 @@ import torch
 import torch.nn.functional as F
 
 
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
 def calc_link_pred_loss(mg_pred, mg_y, ppi_preds, ppi_y, loss_type="BCE"):
-    
+
     # Calculate link prediction loss on metagraph
     mg_loss = 0
     if len(mg_pred) > 0:
@@ -30,9 +30,11 @@ def max_margin_loss(pred, y):
     return loss
 
 
-def el_dot(embed, edges, relation): 
+def el_dot(embed, edges, relation):
     source = embed[edges[0, :]]
     target = embed[edges[1, :]]
-    if len(relation) != 0: dots = torch.sum(source * relation * target, dim = 1)
-    else: dots = torch.sum(source * target, dim = 1)
+    if len(relation) != 0:
+        dots = torch.sum(source * relation * target, dim=1)
+    else:
+        dots = torch.sum(source * target, dim=1)
     return torch.sigmoid(dots)

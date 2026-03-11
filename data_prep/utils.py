@@ -23,7 +23,7 @@ def read_ts_data(f):
 
 
 def count_cells_per_celltype(f):
-    ts_data_tissue = pd.read_csv(f, sep = "\t")
+    ts_data_tissue = pd.read_csv(f, sep="\t")
     print(ts_data_tissue)
     return Counter(ts_data_tissue["cell_ontology_class"].tolist())
 
@@ -40,7 +40,7 @@ def load_global_PPI(f):
     return G
 
 
-#def load_celltype_ppi(ppi_dir):
+# def load_celltype_ppi(ppi_dir):
 #    ppi_layers = dict()
 #
 #    for f in glob.glob(ppi_dir + "*"): # Expected format of filename: <PPI_DIR>/<CONTEXT>.<suffix>
@@ -70,7 +70,8 @@ def jaccard_similarity(set1, set2):
 
 
 def ontology_distance(tree, a, b, diameter):
-    if not nx.has_path(tree, a, b): return None
+    if not nx.has_path(tree, a, b):
+        return None
     return nx.shortest_path_length(tree, a, b) / diameter
 
 
@@ -85,7 +86,14 @@ def calculate_correlation(x, y, title, x_label, y_label, plot_f):
         x_ordered.append(x[pair])
         y_ordered.append(y[pair])
 
-    ax = sns.regplot(x = x_ordered, y = y_ordered, marker = ".", y_jitter = 0.005, scatter_kws={"color": "silver"}, line_kws={"color": "darkcyan"})
+    ax = sns.regplot(
+        x=x_ordered,
+        y=y_ordered,
+        marker=".",
+        y_jitter=0.005,
+        scatter_kws={"color": "silver"},
+        line_kws={"color": "darkcyan"},
+    )
     plt.xlabel(x_label)
     plt.ylabel(y_label)
     plt.title(title)
@@ -96,11 +104,12 @@ def calculate_correlation(x, y, title, x_label, y_label, plot_f):
 
 
 def plot_box(data, dodge, x, y, title, x_label, y_label, legend, plot_f):
-    ax = sns.boxplot(data = data, x = x, y = y, hue = x, dodge = dodge)
+    ax = sns.boxplot(data=data, x=x, y=y, hue=x, dodge=dodge)
     plt.xlabel(x_label)
     plt.ylabel(y_label)
     plt.title(title)
     plt.tight_layout()
-    if not legend: ax.get_legend().remove()
+    if not legend:
+        ax.get_legend().remove()
     plt.savefig(plot_f)
     plt.close()

@@ -12,7 +12,8 @@ from utils import read_ts_data, load_global_PPI, read_obo, load_celltype_ppi
 from utils import jaccard_similarity, ontology_distance, calculate_correlation, plot_box
 
 import sys
-sys.path.insert(0, '..') # add data_config to path
+
+sys.path.insert(0, "..")  # add data_config to path
 from data_config import PPI_DIR, CELL_ONTOLOGY_DIR
 
 
@@ -34,12 +35,25 @@ def evaluate(ppi_layers, ppi, cell_ontology, cell_ontology_names):
 
         # Overlap of top 100 network centrality genes for immune vs. non-immune compartments?
         p_pagerank = nx.pagerank(ppi.subgraph(p))
-        top_centrality[c] = dict(sorted(p_pagerank.items(), key = itemgetter(1), reverse = True)[:100])
+        top_centrality[c] = dict(
+            sorted(p_pagerank.items(), key=itemgetter(1), reverse=True)[:100]
+        )
 
-    print("Minimum LCC:", min(lcc), "Maximum LCC:", max(lcc), "Average LCC:", np.mean(lcc), "+/-", np.std(lcc))
+    print(
+        "Minimum LCC:",
+        min(lcc),
+        "Maximum LCC:",
+        max(lcc),
+        "Average LCC:",
+        np.mean(lcc),
+        "+/-",
+        np.std(lcc),
+    )
     calculate_genome_coverage(all_genes, ppi)
-    #calculate_gene_overlap(freq_genes)
-    calculate_celltype_jaccard(ppi_layers, top_centrality, cell_ontology, cell_ontology_names)
+    # calculate_gene_overlap(freq_genes)
+    calculate_celltype_jaccard(
+        ppi_layers, top_centrality, cell_ontology, cell_ontology_names
+    )
 
 
 def calculate_genome_coverage(all_genes, ppi):
@@ -56,16 +70,29 @@ def shortest_path_to_root(celltypes, cell_ontology, cell_ontology_names):
         for c_2 in celltypes:
             c_2 = c_2[1]
             if c_1 in cell_ontology_names and c_2 in cell_ontology_names:
-                c1_to_root = nx.shortest_path_length(cell_ontology, cell_ontology_names[c_1], root)
-                c2_to_root = nx.shortest_path_length(cell_ontology, cell_ontology_names[c_2], root)
+                c1_to_root = nx.shortest_path_length(
+                    cell_ontology, cell_ontology_names[c_1], root
+                )
+                c2_to_root = nx.shortest_path_length(
+                    cell_ontology, cell_ontology_names[c_2], root
+                )
                 spls.append(c1_to_root + c2_to_root)
-    print("Minimum SPLs:", min(spls), "Maximum SPLs:", max(spls), "Average SPLs:", np.mean(spls), "+/-", np.std(spls))
+    print(
+        "Minimum SPLs:",
+        min(spls),
+        "Maximum SPLs:",
+        max(spls),
+        "Average SPLs:",
+        np.mean(spls),
+        "+/-",
+        np.std(spls),
+    )
 
 
 def calculate_gene_overlap(freq_genes):
     overlap = []
     for g, celltypes in freq_genes.items():
-        #print(g, len(celltypes))
+        # print(g, len(celltypes))
         overlap.append(len(celltypes))
     print("On average, genes appear in %.2f cell types" % np.mean(overlap))
 
@@ -73,7 +100,7 @@ def calculate_gene_overlap(freq_genes):
 def calculate_celltype_jaccard(ppi_layers, top_centrality, tree, tree_names):
     tree = tree.to_undirected()
     print("Tree is now undirected")
-    
+
     jaccard_sim = dict()
     jaccard_list = []
     top100_jaccard_sim = dict()
@@ -81,7 +108,7 @@ def calculate_celltype_jaccard(ppi_layers, top_centrality, tree, tree_names):
     top100_semantic_list = []
     semantic_sim = dict()
     semantic_list = []
-    diameter = 1 #nx.diameter(tree) #max([nx.diameter(tree.subgraph(cc)) for cc in nx.strongly_connected_components(tree)])
+    diameter = 1  # nx.diameter(tree) #max([nx.diameter(tree.subgraph(cc)) for cc in nx.strongly_connected_components(tree)])
     for c_1, ppi_1 in ppi_layers.items():
         c_1 = c_1[1]
         top100_ppi_1 = top_centrality[c_1]
@@ -92,27 +119,63 @@ def calculate_celltype_jaccard(ppi_layers, top_centrality, tree, tree_names):
                 if not nx.has_path(tree, tree_names[c_1], tree_names[c_2]):
                     print("No path found between %s and %s" % (c_1, c_2))
                     continue
-                semantic_sim[(c_1, c_2)] = ontology_distance(tree, tree_names[c_1], tree_names[c_2], diameter)
+                semantic_sim[(c_1, c_2)] = ontology_distance(
+                    tree, tree_names[c_1], tree_names[c_2], diameter
+                )
                 jaccard_sim[(c_1, c_2)] = jaccard_similarity(set(ppi_1), set(ppi_2))
                 semantic_list.append(semantic_sim[(c_1, c_2)])
                 jaccard_list.append(jaccard_sim[(c_1, c_2)])
-                if len(top100_ppi_1) == 0 and len(top100_ppi_2) == 0: continue
-                top100_jaccard_sim[(c_1, c_2)] = jaccard_similarity(set(top100_ppi_1), set(top100_ppi_2))
+                if len(top100_ppi_1) == 0 and len(top100_ppi_2) == 0:
+                    continue
+                top100_jaccard_sim[(c_1, c_2)] = jaccard_similarity(
+                    set(top100_ppi_1), set(top100_ppi_2)
+                )
                 top100_jaccard_list.append(top100_jaccard_sim[(c_1, c_2)])
                 top100_semantic_list.append(semantic_sim[(c_1, c_2)])
 
     dodge = False
     legend = False
-    semantic_jaccard_sims = pd.DataFrame.from_dict({"Semantic Distance": semantic_list, "Jaccard Similarity": jaccard_list})
-    plot_box(semantic_jaccard_sims, dodge, "Semantic Distance", "Jaccard Similarity", "Jaccard Similarity vs. Semantic Distance", "Semantic Distance", "Jaccard Similarity", legend, "figures/ppi_semantic_jaccard_sim.pdf")
-    semantic_top100jaccard_sims = pd.DataFrame.from_dict({"Semantic Distance": top100_semantic_list, "Jaccard Similarity": top100_jaccard_list})
-    plot_box(semantic_top100jaccard_sims, dodge, "Semantic Distance", "Jaccard Similarity", "Top 100 Jaccard Similarity vs. Semantic Distance", "Semantic Distance", "Jaccard Similarity", legend, "figures/ppi_top100_semantic_jaccard_sim.pdf")
+    semantic_jaccard_sims = pd.DataFrame.from_dict(
+        {"Semantic Distance": semantic_list, "Jaccard Similarity": jaccard_list}
+    )
+    plot_box(
+        semantic_jaccard_sims,
+        dodge,
+        "Semantic Distance",
+        "Jaccard Similarity",
+        "Jaccard Similarity vs. Semantic Distance",
+        "Semantic Distance",
+        "Jaccard Similarity",
+        legend,
+        "figures/ppi_semantic_jaccard_sim.pdf",
+    )
+    semantic_top100jaccard_sims = pd.DataFrame.from_dict(
+        {
+            "Semantic Distance": top100_semantic_list,
+            "Jaccard Similarity": top100_jaccard_list,
+        }
+    )
+    plot_box(
+        semantic_top100jaccard_sims,
+        dodge,
+        "Semantic Distance",
+        "Jaccard Similarity",
+        "Top 100 Jaccard Similarity vs. Semantic Distance",
+        "Semantic Distance",
+        "Jaccard Similarity",
+        legend,
+        "figures/ppi_top100_semantic_jaccard_sim.pdf",
+    )
 
 
 def main():
 
-    parser = argparse.ArgumentParser(description="Evaluating cell type specific PPI networks.")
-    parser.add_argument("-celltype_ppi", type=str, help="Filename (prefix) of cell type PPI.")
+    parser = argparse.ArgumentParser(
+        description="Evaluating cell type specific PPI networks."
+    )
+    parser.add_argument(
+        "-celltype_ppi", type=str, help="Filename (prefix) of cell type PPI."
+    )
     args = parser.parse_args()
 
     # Read global PPI
@@ -128,7 +191,10 @@ def main():
     # Read Cell Ontology
     print("Loading in Cell Ontology...")
     cell_ontology = read_obo(CELL_ONTOLOGY_DIR)
-    cell_ontology_names = {str(data.get('name')).lower(): id_ for id_, data in cell_ontology.nodes(data=True)}
+    cell_ontology_names = {
+        str(data.get("name")).lower(): id_
+        for id_, data in cell_ontology.nodes(data=True)
+    }
     ts_cell_ontology = []
     for c in celltype_ppi:
         if c[1] in cell_ontology_names:
@@ -138,7 +204,9 @@ def main():
     ts_cell_ontology = cell_ontology.subgraph(ts_cell_ontology)
     print(ts_cell_ontology.nodes())
     print("Number of nodes in Cell Ontology:", len(ts_cell_ontology.nodes))
-    cell_ontology = cell_ontology.subgraph(max(nx.weakly_connected_components(cell_ontology), key=len))
+    cell_ontology = cell_ontology.subgraph(
+        max(nx.weakly_connected_components(cell_ontology), key=len)
+    )
     print("Number of nodes:", len(cell_ontology.nodes))
     print("Number of edges:", len(cell_ontology.edges))
     print("Finished loading in Cell Ontology...")

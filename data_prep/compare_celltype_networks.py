@@ -6,13 +6,18 @@ from utils import load_global_PPI, load_celltype_ppi, count_cells_per_celltype
 from utils import jaccard_similarity
 
 import sys
-sys.path.insert(0, '..') # add data_config to path
+
+sys.path.insert(0, "..")  # add data_config to path
 from data_config import PPI_DIR, OUTPUT_DIR
 
 
 def overlapping_celltypes(celltype_ppi_1, celltype_ppi_2, cells_per_celltype):
-    celltypes_1 = set(list(celltype_ppi_1.keys())) #set([c[1] for c in celltype_ppi_1])
-    celltypes_2 = set(list(celltype_ppi_2.keys())) #set([c[1] for c in celltype_ppi_2])
+    celltypes_1 = set(
+        list(celltype_ppi_1.keys())
+    )  # set([c[1] for c in celltype_ppi_1])
+    celltypes_2 = set(
+        list(celltype_ppi_2.keys())
+    )  # set([c[1] for c in celltype_ppi_2])
 
     overlap = celltypes_1.intersection(celltypes_2)
     only_in_1 = celltypes_1.difference(celltypes_2)
@@ -33,7 +38,9 @@ def overlapping_celltypes(celltype_ppi_1, celltype_ppi_2, cells_per_celltype):
     return overlap, only_in_1, only_in_2
 
 
-def jaccard_sims_comparisons(celltype_ppi_1, celltype_ppi_2, cells_per_celltype, global_ppi):
+def jaccard_sims_comparisons(
+    celltype_ppi_1, celltype_ppi_2, cells_per_celltype, global_ppi
+):
     sims_over10K = []
     sims_lessthan1K = []
     sims_lessthan500 = []
@@ -90,32 +97,207 @@ def jaccard_sims_comparisons(celltype_ppi_1, celltype_ppi_2, cells_per_celltype,
             global_sims_1_equal300.append(global_sims_1)
             global_sims_2_equal300.append(global_sims_2)
 
-    print("Jaccard similarity for cell types >= 10K:", "Min: %.2f, Max: %.2f, Average: %.2f +/- %.2f" % (min(sims_over10K), max(sims_over10K), np.mean(sims_over10K), np.std(sims_over10K)))
-    print("Jaccard similarity for cell types < 1K:", "Min: %.2f, Max: %.2f, Average: %.2f +/- %.2f" % (min(sims_lessthan1K), max(sims_lessthan1K), np.mean(sims_lessthan1K), np.std(sims_lessthan1K)))
-    print("Jaccard similarity for cell types < 500:", "Min: %.2f, Max: %.2f, Average: %.2f +/- %.2f" % (min(sims_lessthan500), max(sims_lessthan500), np.mean(sims_lessthan500), np.std(sims_lessthan500)))
-    if len(sims_equal100) > 0: print("Jaccard similarity for cell types = 100:", "Min: %.2f, Max: %.2f, Average: %.2f +/- %.2f" % (min(sims_equal100), max(sims_equal100), np.mean(sims_equal100), np.std(sims_equal100)))
-    if len(sims_equal200) > 0: print("Jaccard similarity for cell types = 200:", "Min: %.2f, Max: %.2f, Average: %.2f +/- %.2f" % (min(sims_equal200), max(sims_equal200), np.mean(sims_equal200), np.std(sims_equal200)))
-    if len(sims_equal300) > 0: print("Jaccard similarity for cell types = 300:", "Min: %.2f, Max: %.2f, Average: %.2f +/- %.2f" % (min(sims_equal300), max(sims_equal300), np.mean(sims_equal300), np.std(sims_equal300)))
+    print(
+        "Jaccard similarity for cell types >= 10K:",
+        "Min: %.2f, Max: %.2f, Average: %.2f +/- %.2f"
+        % (
+            min(sims_over10K),
+            max(sims_over10K),
+            np.mean(sims_over10K),
+            np.std(sims_over10K),
+        ),
+    )
+    print(
+        "Jaccard similarity for cell types < 1K:",
+        "Min: %.2f, Max: %.2f, Average: %.2f +/- %.2f"
+        % (
+            min(sims_lessthan1K),
+            max(sims_lessthan1K),
+            np.mean(sims_lessthan1K),
+            np.std(sims_lessthan1K),
+        ),
+    )
+    print(
+        "Jaccard similarity for cell types < 500:",
+        "Min: %.2f, Max: %.2f, Average: %.2f +/- %.2f"
+        % (
+            min(sims_lessthan500),
+            max(sims_lessthan500),
+            np.mean(sims_lessthan500),
+            np.std(sims_lessthan500),
+        ),
+    )
+    if len(sims_equal100) > 0:
+        print(
+            "Jaccard similarity for cell types = 100:",
+            "Min: %.2f, Max: %.2f, Average: %.2f +/- %.2f"
+            % (
+                min(sims_equal100),
+                max(sims_equal100),
+                np.mean(sims_equal100),
+                np.std(sims_equal100),
+            ),
+        )
+    if len(sims_equal200) > 0:
+        print(
+            "Jaccard similarity for cell types = 200:",
+            "Min: %.2f, Max: %.2f, Average: %.2f +/- %.2f"
+            % (
+                min(sims_equal200),
+                max(sims_equal200),
+                np.mean(sims_equal200),
+                np.std(sims_equal200),
+            ),
+        )
+    if len(sims_equal300) > 0:
+        print(
+            "Jaccard similarity for cell types = 300:",
+            "Min: %.2f, Max: %.2f, Average: %.2f +/- %.2f"
+            % (
+                min(sims_equal300),
+                max(sims_equal300),
+                np.mean(sims_equal300),
+                np.std(sims_equal300),
+            ),
+        )
 
-    print("Jaccard similarity of global & celltype1 for cell types >= 10K:", "Min: %.2f, Max: %.2f, Average: %.2f +/- %.2f" % (min(global_sims_1_over10K), max(global_sims_1_over10K), np.mean(global_sims_1_over10K), np.std(global_sims_1_over10K)))
-    print("Jaccard similarity of global & celltype1 for cell types < 1K:", "Min: %.2f, Max: %.2f, Average: %.2f +/- %.2f" % (min(global_sims_1_lessthan1K), max(global_sims_1_lessthan1K), np.mean(global_sims_1_lessthan1K), np.std(global_sims_1_lessthan1K)))
-    print("Jaccard similarity of global & celltype1 for cell types < 500:", "Min: %.2f, Max: %.2f, Average: %.2f +/- %.2f" % (min(global_sims_1_lessthan500), max(global_sims_1_lessthan500), np.mean(global_sims_1_lessthan500), np.std(global_sims_1_lessthan500)))
-    if len(global_sims_1_equal100) > 0: print("Jaccard similarity of global & celltype1 for cell types = 100:", "Min: %.2f, Max: %.2f, Average: %.2f +/- %.2f" % (min(global_sims_1_equal100), max(global_sims_1_equal100), np.mean(global_sims_1_equal100), np.std(global_sims_1_equal100)))
-    if len(global_sims_1_equal200) > 0: print("Jaccard similarity of global & celltype1 for cell types = 200:", "Min: %.2f, Max: %.2f, Average: %.2f +/- %.2f" % (min(global_sims_1_equal200), max(global_sims_1_equal200), np.mean(global_sims_1_equal200), np.std(global_sims_1_equal200)))
-    if len(global_sims_1_equal300) > 0: print("Jaccard similarity of global & celltype1 for cell types = 300:", "Min: %.2f, Max: %.2f, Average: %.2f +/- %.2f" % (min(global_sims_1_equal300), max(global_sims_1_equal300), np.mean(global_sims_1_equal300), np.std(global_sims_1_equal300)))
+    print(
+        "Jaccard similarity of global & celltype1 for cell types >= 10K:",
+        "Min: %.2f, Max: %.2f, Average: %.2f +/- %.2f"
+        % (
+            min(global_sims_1_over10K),
+            max(global_sims_1_over10K),
+            np.mean(global_sims_1_over10K),
+            np.std(global_sims_1_over10K),
+        ),
+    )
+    print(
+        "Jaccard similarity of global & celltype1 for cell types < 1K:",
+        "Min: %.2f, Max: %.2f, Average: %.2f +/- %.2f"
+        % (
+            min(global_sims_1_lessthan1K),
+            max(global_sims_1_lessthan1K),
+            np.mean(global_sims_1_lessthan1K),
+            np.std(global_sims_1_lessthan1K),
+        ),
+    )
+    print(
+        "Jaccard similarity of global & celltype1 for cell types < 500:",
+        "Min: %.2f, Max: %.2f, Average: %.2f +/- %.2f"
+        % (
+            min(global_sims_1_lessthan500),
+            max(global_sims_1_lessthan500),
+            np.mean(global_sims_1_lessthan500),
+            np.std(global_sims_1_lessthan500),
+        ),
+    )
+    if len(global_sims_1_equal100) > 0:
+        print(
+            "Jaccard similarity of global & celltype1 for cell types = 100:",
+            "Min: %.2f, Max: %.2f, Average: %.2f +/- %.2f"
+            % (
+                min(global_sims_1_equal100),
+                max(global_sims_1_equal100),
+                np.mean(global_sims_1_equal100),
+                np.std(global_sims_1_equal100),
+            ),
+        )
+    if len(global_sims_1_equal200) > 0:
+        print(
+            "Jaccard similarity of global & celltype1 for cell types = 200:",
+            "Min: %.2f, Max: %.2f, Average: %.2f +/- %.2f"
+            % (
+                min(global_sims_1_equal200),
+                max(global_sims_1_equal200),
+                np.mean(global_sims_1_equal200),
+                np.std(global_sims_1_equal200),
+            ),
+        )
+    if len(global_sims_1_equal300) > 0:
+        print(
+            "Jaccard similarity of global & celltype1 for cell types = 300:",
+            "Min: %.2f, Max: %.2f, Average: %.2f +/- %.2f"
+            % (
+                min(global_sims_1_equal300),
+                max(global_sims_1_equal300),
+                np.mean(global_sims_1_equal300),
+                np.std(global_sims_1_equal300),
+            ),
+        )
 
-    print("Jaccard similarity of global & celltype2 for cell types >= 10K:", "Min: %.2f, Max: %.2f, Average: %.2f +/- %.2f" % (min(global_sims_2_over10K), max(global_sims_2_over10K), np.mean(global_sims_2_over10K), np.std(global_sims_2_over10K)))
-    print("Jaccard similarity of global & celltype2 for cell types < 1K:", "Min: %.2f, Max: %.2f, Average: %.2f +/- %.2f" % (min(global_sims_2_lessthan1K), max(global_sims_2_lessthan1K), np.mean(global_sims_2_lessthan1K), np.std(global_sims_2_lessthan1K)))
-    print("Jaccard similarity of global & celltype2 for cell types < 500:", "Min: %.2f, Max: %.2f, Average: %.2f +/- %.2f" % (min(global_sims_2_lessthan500), max(global_sims_2_lessthan500), np.mean(global_sims_2_lessthan500), np.std(global_sims_2_lessthan500)))
-    if len(global_sims_2_equal100) > 0: print("Jaccard similarity of global & celltype2 for cell types = 100:", "Min: %.2f, Max: %.2f, Average: %.2f +/- %.2f" % (min(global_sims_2_equal100), max(global_sims_2_equal100), np.mean(global_sims_2_equal100), np.std(global_sims_2_equal100)))
-    if len(global_sims_2_equal200) > 0: print("Jaccard similarity of global & celltype2 for cell types = 200:", "Min: %.2f, Max: %.2f, Average: %.2f +/- %.2f" % (min(global_sims_2_equal200), max(global_sims_2_equal200), np.mean(global_sims_2_equal200), np.std(global_sims_2_equal200)))
-    if len(global_sims_2_equal300) > 0: print("Jaccard similarity of global & celltype2 for cell types = 300:", "Min: %.2f, Max: %.2f, Average: %.2f +/- %.2f" % (min(global_sims_2_equal300), max(global_sims_2_equal300), np.mean(global_sims_2_equal300), np.std(global_sims_2_equal300)))
+    print(
+        "Jaccard similarity of global & celltype2 for cell types >= 10K:",
+        "Min: %.2f, Max: %.2f, Average: %.2f +/- %.2f"
+        % (
+            min(global_sims_2_over10K),
+            max(global_sims_2_over10K),
+            np.mean(global_sims_2_over10K),
+            np.std(global_sims_2_over10K),
+        ),
+    )
+    print(
+        "Jaccard similarity of global & celltype2 for cell types < 1K:",
+        "Min: %.2f, Max: %.2f, Average: %.2f +/- %.2f"
+        % (
+            min(global_sims_2_lessthan1K),
+            max(global_sims_2_lessthan1K),
+            np.mean(global_sims_2_lessthan1K),
+            np.std(global_sims_2_lessthan1K),
+        ),
+    )
+    print(
+        "Jaccard similarity of global & celltype2 for cell types < 500:",
+        "Min: %.2f, Max: %.2f, Average: %.2f +/- %.2f"
+        % (
+            min(global_sims_2_lessthan500),
+            max(global_sims_2_lessthan500),
+            np.mean(global_sims_2_lessthan500),
+            np.std(global_sims_2_lessthan500),
+        ),
+    )
+    if len(global_sims_2_equal100) > 0:
+        print(
+            "Jaccard similarity of global & celltype2 for cell types = 100:",
+            "Min: %.2f, Max: %.2f, Average: %.2f +/- %.2f"
+            % (
+                min(global_sims_2_equal100),
+                max(global_sims_2_equal100),
+                np.mean(global_sims_2_equal100),
+                np.std(global_sims_2_equal100),
+            ),
+        )
+    if len(global_sims_2_equal200) > 0:
+        print(
+            "Jaccard similarity of global & celltype2 for cell types = 200:",
+            "Min: %.2f, Max: %.2f, Average: %.2f +/- %.2f"
+            % (
+                min(global_sims_2_equal200),
+                max(global_sims_2_equal200),
+                np.mean(global_sims_2_equal200),
+                np.std(global_sims_2_equal200),
+            ),
+        )
+    if len(global_sims_2_equal300) > 0:
+        print(
+            "Jaccard similarity of global & celltype2 for cell types = 300:",
+            "Min: %.2f, Max: %.2f, Average: %.2f +/- %.2f"
+            % (
+                min(global_sims_2_equal300),
+                max(global_sims_2_equal300),
+                np.mean(global_sims_2_equal300),
+                np.std(global_sims_2_equal300),
+            ),
+        )
 
 
 def main():
     parser = argparse.ArgumentParser(description="Constructing meta graph.")
-    parser.add_argument("-celltype_ppi_1", type=str, help="Filename (prefix) of cell type PPI 1.")
-    parser.add_argument("-celltype_ppi_2", type=str, help="Filename (prefix) of cell type PPI 2.")
+    parser.add_argument(
+        "-celltype_ppi_1", type=str, help="Filename (prefix) of cell type PPI 1."
+    )
+    parser.add_argument(
+        "-celltype_ppi_2", type=str, help="Filename (prefix) of cell type PPI 2."
+    )
     args = parser.parse_args()
 
     """
@@ -136,12 +318,14 @@ def main():
     print("Number of cell types in PPI 1:", len(celltype_ppi_1))
     print("Number of cell types in PPI 2:", len(celltype_ppi_2))
 
-    overlap, only_in_1, only_in_2 = overlapping_celltypes(celltype_ppi_1, celltype_ppi_2, cells_per_celltype)
+    overlap, only_in_1, only_in_2 = overlapping_celltypes(
+        celltype_ppi_1, celltype_ppi_2, cells_per_celltype
+    )
 
-    jaccard_sims_comparisons(celltype_ppi_1, celltype_ppi_2, cells_per_celltype, list(global_ppi.nodes))
-    
-
+    jaccard_sims_comparisons(
+        celltype_ppi_1, celltype_ppi_2, cells_per_celltype, list(global_ppi.nodes)
+    )
 
 
 if __name__ == "__main__":
-    main() 
+    main()
