@@ -24,7 +24,7 @@
 #     --embed pinnacle \
 
 
-DISEASE_IDS=('EFO_0003884') # 'EFO_0003095' 'EFO_0003060' 'MONDO_0005184')  # Add more as needed
+DISEASE_IDS=('EFO_0003095' 'EFO_0003060' 'MONDO_0005184' 'MONDO_0004976' 'MONDO_0004975')  # Add more as needed
 
 for DISEASE_ID in "${DISEASE_IDS[@]}"; do
     echo "Processing $DISEASE_ID"
@@ -38,9 +38,9 @@ for DISEASE_ID in "${DISEASE_IDS[@]}"; do
         --chembl2db_path data/src1src2.txt
 
     # Generate the data splits
-    # python finetune_pinnacle/data_prep.py \
-    #     --embeddings_dir data/pinnacle_embeds/ \
-    #     --embed pinnacle \
-    #     --disease "$DISEASE_ID" \
-    #     --result_dir data/therapeutic_target_task 
+    python finetune_pinnacle/data_prep.py \
+        --embeddings_dir data/pinnacle_embeds/ \
+        --embed pinnacle \
+        --disease "$DISEASE_ID" \
+        --result_dir data/therapeutic_target_task 
 done

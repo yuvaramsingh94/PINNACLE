@@ -13,7 +13,7 @@ from extract_txdata_utils import *
 
 MAX_RETRY = 10  # To mitigate the effect of random state, we will redo data splitting for MAX_RETRY times if the number of positive samples in test set is less than TEST_CELLTYPE_POS_NUM_MIN
 TEST_CELLTYPE_POS_NUM_MIN = 5  # For each cell type, the number of positive samples in test set must be greater than 5, or else the disease won't be evlauated
-TEST_CELLTYPE_POS_NUM_MIN = 1  # For each cell type, the number of positive samples in test set must be greater than 5, or else the disease won't be evlauated
+#TEST_CELLTYPE_POS_NUM_MIN = 1  # For each cell type, the number of positive samples in test set must be greater than 5, or else the disease won't be evlauated
 
 def path_update_fn(args):
     """Modify the prefix with a custom path that include disease name.

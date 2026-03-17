@@ -16,6 +16,13 @@ def load_PPI_data(ppi_dir):
         ppi_layers[context] = ppi
     return ppi_layers
 
+## To fix the mismatch betwen the cell names
+def fix(protein_dict):
+    new_dict = {}
+    for k, v in protein_dict.items():
+        new_dict[k.replace("_"," ")] = v
+    return new_dict
+
 
 def read_labels_from_evidence(
     positive_protein_prefix,
@@ -28,10 +35,10 @@ def read_labels_from_evidence(
     try:
         with open(positive_protein_prefix + ".json", "r") as f:
             temp = json.load(f)
-            positive_proteins = temp
+            positive_proteins = fix(temp)
         with open(negative_protein_prefix + ".json", "r") as f:
             temp = json.load(f)
-            negative_proteins = temp
+            negative_proteins = fix(temp)
 
         if raw_data_prefix != None:
             with open(raw_data_prefix + ".json", "r") as f:
